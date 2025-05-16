@@ -29,7 +29,10 @@ if uploaded_file is not None:
 
             # Name
             resume_data["name"] = st.text_input("Name", value=resume_data.get("name", ""))
+            
+            resume_data["title"] = st.text_input("Title", value=resume_data.get("title", ""))
 
+            resume_data["summary"] = st.text_area("Summary", value=resume_data.get("summary", ""), height=100)
             # Education
             st.subheader("Education")
             for i, edu in enumerate(resume_data["education"]):
