@@ -23,30 +23,29 @@
     .page {
       position: relative;
       width: 21cm;
-      min-height: 29.7cm;
+      height: 29.7cm;
       margin: auto;
       display: flex;
       flex-direction: column;
       background: #fff;
-      z-index: 1;
+      page-break-after: always;
     }
 
     .page::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url("{{ bg_image }}");
-        background-repeat: no-repeat;
-        background-position: center center;
-        background-size: 35%; /* ↓ reduced size for watermark effect */
-        opacity: 0.30; /* slightly more subtle for watermark look */
-        z-index: 0;
-        pointer-events: none;
-      }
-      
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("{{ bg_image }}");
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: 35%;
+      opacity: 0.30;
+      z-index: 0;
+      pointer-events: none;
+    }
 
     .page > * {
       position: relative;
@@ -59,31 +58,46 @@
       align-items: center;
       padding: 20px;
     }
-    .title {
-      font-size: 15px; /* Increased from default 13px */
 
-      margin-bottom: 10px;
-    }
-    
     .left-logo,
     .right-logo {
-      height: 40px;
+      height: 30px;
     }
 
     .content {
       flex: 1;
       display: flex;
-      padding: 0 20px 20px 20px;
+      padding: 0 20px 20px 0;
     }
 
     .left-column {
       width: 30%;
-      padding-right: 20px;
+      display: flex;
+      margin-top: 20px;
+      flex-direction: column;
+    }
+
+    .left-column > *:not(.name-title-container) {
+      padding: 0 20px 0 20px;
+    }
+
+    .name-title-container {
+      padding-left: 20px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      background-color: #f2f2f2;
+      text-align: left;
+      width:100%;
+    }
+
+    .name-title-container h1 {
+      margin-bottom: 10px;
     }
 
     .right-column {
       width: 70%;
       padding-left: 20px;
+      margine-top: 30px;
     }
 
     h1 {
@@ -92,13 +106,15 @@
       margin-top: 20px;
       margin-bottom: 15px;
     }
+    .title {
+      font-size: 20px;
+    }
 
     h2 {
       font-size: 16px;
       color: #f25d5d;
       margin-top: 20px;
       margin-bottom: 10px;
-
       padding-bottom: 5px;
     }
 
@@ -155,22 +171,13 @@
       color: #000;
       text-decoration: none;
     }
-
-    @media print {
-      .page {
-        page-break-after: always;
-      }
-
-      .footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-      }
-    }
   </style>
 </head>
 <body>
+
+{% set projects_per_page = 3 %}
+{% set total_projects = cv.projects | length %}
+{% for page_num in range(0, (total_projects // projects_per_page) + 1) %}
   <div class="page">
     <div class="header">
       <img src="{{ left_logo }}" class="left-logo">
@@ -179,11 +186,14 @@
 
     <div class="content">
       <div class="left-column">
-        <h1>{{ cv.name }}</h1>
-        <p class="title"><strong>{{ cv.title }}</strong></p>
+        {% if page_num == 0 %}
+          <div class="name-title-container">
+            <h1>{{ cv.name }}</h1>
+            <p class="title"><strong>{{ cv.title }}</strong></p>
+          </div>
+        {% endif %}
 
-
-        {% if cv.skills %}
+        {% if page_num == 0 and cv.skills %}
           <div class="section-title">Skills</div>
           <ul>
             {% for skill in cv.skills %}
@@ -192,7 +202,7 @@
           </ul>
         {% endif %}
 
-        {% if cv.education %}
+        {% if page_num == 0 and cv.education %}
           <div class="section-title">Education</div>
           <ul>
             {% for edu in cv.education %}
@@ -203,14 +213,18 @@
       </div>
 
       <div class="right-column">
-        {% if cv.summary %}
+        {% if page_num == 0 and cv.summary %}
           <h2>Summary</h2>
           <p>{{ cv.summary }}</p>
         {% endif %}
 
         {% if cv.projects %}
-          <h2>Key Responsibilities:</h2>
-          {% for project in cv.projects %}
+          {% if page_num == 0 %}
+            <h2>Key Responsibilities:</h2>
+          {% endif %}
+          {% set start = page_num * projects_per_page %}
+          {% set end = start + projects_per_page %}
+          {% for project in cv.projects[start:end] %}
             {% if project.title %}
               <h3>{{ project.title }}</h3>
             {% endif %}
@@ -230,5 +244,7 @@
       © <a href="https://www.shorthills.ai" target="_blank">www.shorthills.ai</a>
     </div>
   </div>
+{% endfor %}
+
 </body>
 </html>

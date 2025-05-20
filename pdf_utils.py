@@ -25,12 +25,11 @@ class PDFUtils:
         bg_image = PDFUtils.get_base64_image(bg_path)
         left_logo_b64 = PDFUtils.get_base64_image(left_logo_path)
         right_logo_b64 = PDFUtils.get_base64_image(right_logo_path)
-
         html_out = template.render(
             cv=data,
             bg_image=f"data:image/png;base64,{bg_image}",
             left_logo=f"data:image/png;base64,{left_logo_b64}",
-            right_logo=f"data:image/png;base64,{right_logo_b64}"
+            right_logo=f"data:image/png;base64,{right_logo_b64}",
         )
 
         pdf_file = io.BytesIO()
